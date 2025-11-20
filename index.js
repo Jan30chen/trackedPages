@@ -1,11 +1,13 @@
 // ==UserScript==
-// @name         便捷复制
-// @include      */
-// @include      */subject/*
-// @include      */person/*
-// @include      */character/*
+// @name      便捷复制
+// @include  */
+// @include  */subject/*
+// @include  */character/*
+// @include  */person/*
+// @exclude  */subject/*/*
+// @exclude  */character/*/*
+// @exclude  */person/*/*
 // ==/UserScript==
-
 (function () {
   const trackedPagesManager = {
     getTrackedPages() {
@@ -275,7 +277,8 @@
   // window.addTrackedPage = function (title, url) {
   //   return trackedPagesManager.addPage(title, url);
   // };
-
+// fixme
+console.log("复制")
   if(window.location.pathname != '/') {
     trackedPagesManager.addPage(document.title.replace(/\s*\|\s*Bangumi\s*番组计划\s*$/, ''), window.location.pathname);
   }
