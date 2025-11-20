@@ -28,16 +28,19 @@
       }
     },
 
-    addPage(title, url) {
+    addPage(title, url, type, titleCh) {
       const pages = this.getTrackedPages();
       const newPage = {
         title,
         url,
+        type,
+        titleCh,
         id: Date.now()
       };
-      pages.push(newPage);
-      this.saveTrackedPages(pages);
-      return newPage;
+      if (!pages.some(page => page.url === url)) {
+        pages.push(newPage);
+        this.saveTrackedPages(pages);
+      }
     },
 
     removePage(id) {
@@ -84,6 +87,34 @@
 
       this.modalBody = document.createElement('div');
       this.modalBody.className = 'modal-body';
+
+      // 创建标签页容器
+      this.tabContainer = document.createElement('div');
+      this.tabContainer.className = 'tab-container';
+      this.tabs = [
+        { label: '全部', value: 'all' },
+        { label: '条目', value: 'subject' },
+        { label: '角色', value: 'character' },
+        { label: '人物', value: 'person' }
+      ];
+      this.activeTab = 'all';
+      this.tabButtons = {};
+      this.tabs.forEach(tab => {
+        const btn = document.createElement('span');
+        btn.className = 'tab-btn';
+        btn.textContent = tab.label;
+        btn.dataset.tab = tab.value;
+        if (tab.value === this.activeTab) btn.classList.add('active');
+        btn.addEventListener('click', () => {
+          this.activeTab = tab.value;
+          Object.values(this.tabButtons).forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          this.renderList();
+        });
+        this.tabButtons[tab.value] = btn;
+        this.tabContainer.appendChild(btn);
+      });
+      this.modalBody.appendChild(this.tabContainer);
 
       this.listContainer = document.createElement('div');
       this.listContainer.id = 'trackedPagesList';
@@ -144,7 +175,18 @@
     },
 
     renderList() {
-      const pages = trackedPagesManager.getTrackedPages();
+      const allPages = trackedPagesManager.getTrackedPages();
+      let pages;
+      if (this.activeTab === 'all') {
+        pages = allPages;
+      } else {
+        // 通过url中间的字母部分筛选
+        pages = allPages.filter(page => {
+          // 例如 /subject/1234
+          const match = page.url && page.url.match(/^\/(subject|character|person)\//);
+          return match && match[1] === this.activeTab;
+        });
+      }
       this.listContainer.innerHTML = '';
       this.selectedPages.clear(); // 清空选中状态
 
@@ -184,15 +226,16 @@
         const contentDiv = document.createElement('div');
         contentDiv.className = 'page-item-content';
 
+        // 历史项目标题和类型生成
         const titleElement = document.createElement('div');
         titleElement.className = 'page-title';
-        titleElement.textContent = this.escapeHtml(page.title || 'Untitled');
+        titleElement.textContent = this.escapeHtml(`${page.titleCh || page.title}` || '未知名称') + this.escapeHtml(page.type ? ` (${page.type})` : '');
 
         const urlElement = document.createElement('div');
         urlElement.className = 'page-url';
         urlElement.textContent = this.escapeHtml(page.url || 'No URL');
 
-        const deleteBtn = document.createElement('button');
+        const deleteBtn = document.createElement('span');
         deleteBtn.className = 'delete-btn';
         deleteBtn.innerHTML = '×';
         deleteBtn.title = 'Delete this page';
@@ -232,8 +275,8 @@
 
       // 生成三种格式
       const domin = window.location.origin
-      const plainText = selectedPages.map(page =>  domin + page.url).join('、')
-      const bbcode = selectedPages.map(page => `[url=${domin + page.url}]${page.title}[/url]`).join('、');
+      const plainText = selectedPages.map(page => domin + page.url).join('、')
+      const bbcode = selectedPages.map(page => `[url=${domin + page.url}]${page.titleCh || page.title}[/url]`).join('、');
       const wikiLinks = "bgm_id=" + selectedPages.map(page => page.url.match(/\d+$/)[0]).join(',');
 
       this.urlResult.innerHTML = `
@@ -277,11 +320,26 @@
   // window.addTrackedPage = function (title, url) {
   //   return trackedPagesManager.addPage(title, url);
   // };
-// fixme
-console.log("复制")
-  if(window.location.pathname != '/') {
-    trackedPagesManager.addPage(document.title.replace(/\s*\|\s*Bangumi\s*番组计划\s*$/, ''), window.location.pathname);
-  }
+  const pathname = window.location.pathname
+  let title, type, titleCh // 原名、类型、中文名
+  if (pathname != '/') {
+    title = document.querySelector('.nameSingle a').textContent.trim()
+    if (pathname.includes('/subject/')) {
+      if(document.querySelector('.nameSingle small')) {
+        type = document.querySelector('.nameSingle small').textContent.trim()
+      }
+      const infobox = document.getElementById('infobox');
+      if (infobox) {
+        const span = infobox.querySelectorAll('li')[0];
+        if(span && span.textContent.includes('中文名: '))
+        titleCh = span.textContent.replace(/^中文名: ?/, '').trim();
+      }
+    } else {
+      titleCh = document.querySelector('.nameSingle small').textContent.trim()
+      // type = pathname.includes('/person/') ? '人物' : '角色'
+    }
+    trackedPagesManager.addPage(title, pathname, type, titleCh);
+  } 
   modalManager.init();
   initHotkeyListener();
 }());

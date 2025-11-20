@@ -1,3 +1,45 @@
+#tabPagesModal .tab-container, .tab-container {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.tab-btn {
+    background: #f5f5f5;
+    color: #333;
+    border: none;
+    outline: none;
+    border-radius: 18px;
+    padding: 6px 22px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    margin: 0;
+    box-shadow: none;
+}
+
+.tab-btn.active {
+    background: var(--primary-color, #f09199);
+    color: #fff;
+    font-weight: bold;
+}
+
+.tab-btn:not(.active):hover {
+    background: #ececec;
+    color: #222;
+}
+
+/* 项目之间间距更明显 */
+.page-item {
+    margin: 8px 8px 0 0;
+}
+
+/* #trackedPagesList {
+    max-height: 250px;
+    overflow-y: auto;
+} */
 #trackedPagesModal {
     position: fixed;
     top: 0;
@@ -86,13 +128,12 @@
 }
 
 .page-item.selected {
-    border-color: #4CAF50;
-    border-width: 2px;
-    background: #f0f9f0;
+    color: white;
+    background: var(--primary-color, #f09199);
 }
 
 #generateUrlBtn {
-    background: #4CAF50;
+    background: var(--primary-color, #f09199);
     color: white;
     border: none;
     padding: 8px 16px;
@@ -102,7 +143,7 @@
 }
 
 #generateUrlBtn:hover {
-    background: #45a049;
+    background: var(--primary-color, #f09199);
 }
 
 .url-result {
@@ -110,7 +151,7 @@
     padding: 10px;
     background: #f5f5f5;
     border-radius: 4px;
-    border-left: 4px solid #4CAF50;
+    border-left: 4px solid var(--primary-color, #f09199);;
     word-break: break-all;
     font-family: monospace;
     font-size: 14px;
@@ -128,8 +169,8 @@
     position: absolute;
     top: 5px;
     right: 5px;
-    background: #ff4757;
-    color: white;
+    /* background: #ff4757; */
+    color: #333;
     border: none;
     border-radius: 50%;
     width: 20px;
@@ -142,7 +183,7 @@
 }
 
 .delete-btn:hover {
-    background: #ff3742;
+    color: var(--primary-color, #f09199);
 }
 
 .page-item:last-child {
@@ -174,17 +215,16 @@
 }
 
 #clearAllBtn {
-    background: #ff4757;
-    color: white;
-    border: none;
+    color: #333;
     padding: 8px 16px;
+    border: none;
     border-radius: 4px;
     cursor: pointer;
 }
 
-#clearAllBtn:hover {
+/* #clearAllBtn:hover {
     background: #ff3742;
-}
+} */
 
 #clearAllBtn:disabled {
     background: #ccc;
