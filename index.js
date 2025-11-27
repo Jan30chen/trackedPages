@@ -304,7 +304,9 @@
 
   function initHotkeyListener() {
     document.addEventListener('keydown', function (event) {
-      if (event.ctrlKey && event.altKey && event.key === 'h') {
+      // 兼容大小写，监听 Ctrl + Alt + H 和 Ctrl + Alt + Z
+      const key = (event.key || '').toLowerCase();
+      if (event.ctrlKey && event.altKey && (key === 'h' || key === 'z')) {
         event.preventDefault();
         modalManager.show();
       }
@@ -328,7 +330,7 @@
         titleCh = span.textContent.replace(/^中文名: ?/, '').trim();
       }
     }
-    // 角色、任务 
+    // 角色、人物
     else {
       if (document.querySelector('.nameSingle small')) {
         titleCh = document.querySelector('.nameSingle small').textContent.trim()
