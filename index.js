@@ -1,12 +1,6 @@
 // ==UserScript==
 // @name      便捷复制
 // @include  */
-// @include  */subject/*
-// @include  */character/*
-// @include  */person/*
-// @exclude  */subject/*/*
-// @exclude  */character/*/*
-// @exclude  */person/*/*
 // ==/UserScript==
 (function () {
   const trackedPagesManager = {
@@ -317,13 +311,12 @@
     });
   }
 
-  // window.addTrackedPage = function (title, url) {
-  //   return trackedPagesManager.addPage(title, url);
-  // };
   const pathname = window.location.pathname
-  let title, type, titleCh // 原名、类型、中文名
-  if (pathname != '/') {
+  const re = /\/(subject|character|person)\/\d+$/
+  if (re.test(pathname)) {
+    let title, type, titleCh // 原名、类型、中文名
     title = document.querySelector('.nameSingle a').textContent.trim()
+    // 条目
     if (pathname.includes('/subject/')) {
       if(document.querySelector('.nameSingle small')) {
         type = document.querySelector('.nameSingle small').textContent.trim()
@@ -334,9 +327,13 @@
         if(span && span.textContent.includes('中文名: '))
         titleCh = span.textContent.replace(/^中文名: ?/, '').trim();
       }
-    } else {
-      titleCh = document.querySelector('.nameSingle small').textContent.trim()
-      // type = pathname.includes('/person/') ? '人物' : '角色'
+    }
+    // 角色、任务 
+    else {
+      if (document.querySelector('.nameSingle small')) {
+        titleCh = document.querySelector('.nameSingle small').textContent.trim()
+      }
+      type = pathname.includes('/person/') ? '人物' : '角色'
     }
     trackedPagesManager.addPage(title, pathname, type, titleCh);
   } 
