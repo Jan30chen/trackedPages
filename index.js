@@ -1,6 +1,5 @@
 // ==UserScript==
 // @name      便捷复制
-// @include  */
 // ==/UserScript==
 (function () {
   const trackedPagesManager = {
