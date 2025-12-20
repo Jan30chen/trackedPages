@@ -1,5 +1,9 @@
 // ==UserScript==
-// @name      便捷复制
+// @name      历史页面&便捷复制
+// @namespace    https://github.com/Jan30chen/trackedPages
+// @version      2.0
+// @description  快捷键 Ctrl + Alt + H 或 Z 打开历史页面窗口，目前只限记录条目、角色、人物页面
+// @author       jan30chen
 // ==/UserScript==
 (function () {
   const trackedPagesManager = {
@@ -84,11 +88,22 @@
       // 创建标签页容器
       this.tabContainer = document.createElement('div');
       this.tabContainer.className = 'tab-container';
-      this.tabs = [
-        { label: '全部', value: 'all' },
-        { label: '条目', value: 'subject' },
-        { label: '角色', value: 'character' },
-        { label: '人物', value: 'person' }
+      this.tabs = [{
+          label: '全部',
+          value: 'all'
+        },
+        {
+          label: '条目',
+          value: 'subject'
+        },
+        {
+          label: '角色',
+          value: 'character'
+        },
+        {
+          label: '人物',
+          value: 'person'
+        }
       ];
       this.activeTab = 'all';
       this.tabButtons = {};
@@ -226,12 +241,12 @@
 
         const urlElement = document.createElement('div');
         urlElement.className = 'page-url';
-        urlElement.textContent = this.escapeHtml(page.url || 'No URL');
+        urlElement.innerHTML = `<a href='${page.url}'>${this.escapeHtml(page.url || 'No URL')}</a>`;
 
         const deleteBtn = document.createElement('span');
         deleteBtn.className = 'delete-btn';
         deleteBtn.innerHTML = '×';
-        deleteBtn.title = 'Delete this page';
+        deleteBtn.title = '移除该记录';
         deleteBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           trackedPagesManager.removePage(page.id);
@@ -243,7 +258,7 @@
         contentDiv.appendChild(urlElement);
         pageElement.appendChild(contentDiv);
         pageElement.appendChild(deleteBtn);
-        this.listContainer.appendChild(pageElement);
+        this.listContainer.prepend(pageElement);
       });
     },
 
@@ -268,28 +283,42 @@
 
       // 生成三种格式
       const domin = window.location.origin
-      const plainText = selectedPages.map(page => domin + page.url).join('、')
-      const bbcode = selectedPages.map(page => `[url=${domin + page.url}]${page.titleCh || page.title}[/url]`).join('、');
+      const plainText = selectedPages.map(page => domin + page.url).join('\n')
+      const bbcode = selectedPages.map(page => `[url=${domin + page.url}]${page.titleCh || page.title}[/url]`).join('\n');
       const wikiLinks = "bgm_id=" + selectedPages.map(page => page.url.match(/\d+$/)[0]).join(',');
 
       this.urlResult.innerHTML = `
         <div class="url-section">
-            <div class="url-title">普通:</div>
-            <div class="url-content">${this.escapeHtml(plainText)}</div>
+          <div class="url-title">普通:</div>
+          <div class="url-content">
+            <span class="url-content-text"">${this.escapeHtml(plainText)}</span>
+            <div class="url-content-btn">复制</div>
+          </div>
         </div>
         <div class="url-section">
-            <div class="url-title">BBcode:</div>
-            <div class="url-content">${this.escapeHtml(bbcode)}</div>
+          <div class="url-title">BBcode::</div>
+            <div class="url-content">
+              <span class="url-content-text">${this.escapeHtml(bbcode)}</span>
+              <div class="url-content-btn">复制</div>
+            </div>
+          </div>
         </div>
         <div class="url-section">
-            <div class="url-title">维基链:</div>
-            <div class="url-content">${this.escapeHtml(wikiLinks)}</div>
+          <div class="url-title">维基链:</div>
+            <div class="url-content">
+              <span class="url-content-text">${this.escapeHtml(wikiLinks)}</span>
+              <div class="url-content-btn">复制</div>
+            </div>
+          </div>
         </div>
     `;
       this.urlResult.style.display = 'block';
+      this.urlResult.querySelectorAll('.url-content-btn').forEach(btn => {
+        btn.addEventListener('click', (event) => {
+          this.copyUrlContent(event);
+        });
+      });
     },
-
-
 
     escapeHtml(unsafe) {
       return unsafe
@@ -298,8 +327,20 @@
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
+    },
+
+    copyUrlContent(event) {
+      const clickedElement = event.currentTarget;
+      const urlContentElement = clickedElement.parentElement.querySelector('.url-content-text');
+      const textToCopy = urlContentElement.textContent
+      if (!textToCopy) {
+        console.warn('未找到要复制的内容');
+        return;
+      }
+      navigator.clipboard.writeText(textToCopy)
     }
   };
+
 
   function initHotkeyListener() {
     document.addEventListener('keydown', function (event) {
@@ -319,14 +360,14 @@
     title = document.querySelector('.nameSingle a').textContent.trim()
     // 条目
     if (pathname.includes('/subject/')) {
-      if(document.querySelector('.nameSingle small')) {
+      if (document.querySelector('.nameSingle small')) {
         type = document.querySelector('.nameSingle small').textContent.trim()
       }
       const infobox = document.getElementById('infobox');
       if (infobox) {
         const span = infobox.querySelectorAll('li')[0];
-        if(span && span.textContent.includes('中文名: '))
-        titleCh = span.textContent.replace(/^中文名: ?/, '').trim();
+        if (span && span.textContent.includes('中文名: '))
+          titleCh = span.textContent.replace(/^中文名: ?/, '').trim();
       }
     }
     // 角色、人物
@@ -337,7 +378,7 @@
       type = pathname.includes('/person/') ? '人物' : '角色'
     }
     trackedPagesManager.addPage(title, pathname, type, titleCh);
-  } 
+  }
   modalManager.init();
   initHotkeyListener();
 }());

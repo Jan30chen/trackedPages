@@ -1,4 +1,5 @@
-#tabPagesModal .tab-container, .tab-container {
+#tabPagesModal .tab-container,
+.tab-container {
     display: flex;
     gap: 12px;
     margin-bottom: 8px;
@@ -122,7 +123,8 @@
     margin: 4px;
     background: #f9f9f9;
     vertical-align: top;
-    width: calc(50% - 10px); /* 每行显示2个，可根据需要调整 */
+    width: calc(50% - 10px);
+    /* 每行显示2个，可根据需要调整 */
     box-sizing: border-box;
     position: relative;
 }
@@ -151,18 +153,52 @@
     padding: 10px;
     background: #f5f5f5;
     border-radius: 4px;
-    border-left: 4px solid var(--primary-color, #f09199);;
+    border-left: 4px solid var(--primary-color, #f09199);
+    ;
     word-break: break-all;
     font-family: monospace;
     font-size: 14px;
 }
 
-.url-section { margin-bottom: 15px; }
-.url-title { font-weight: bold; margin-bottom: 5px; color: #333; }
-.url-content { background: white; padding: 8px; border-radius: 3px; border: 1px solid #ddd; }
+.url-section {
+    margin-bottom: 15px;
+}
+
+.url-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.url-content {
+    background: white;
+    padding: 8px;
+    border-radius: 3px;
+    border: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.url-content-text { white-space: pre-line; }
+
+.url-content-btn {
+    flex: none;
+    width: 50px;
+    height: 26px;
+    line-height: 26px;
+    background: var(--primary-color, #f09199);
+    color: white;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    text-align: center;
+    margin-left: 10px;
+}
 
 .page-item-content {
-    padding-right: 25px; /* 为关闭按钮留出空间 */
+    padding-right: 25px;
+    /* 为关闭按钮留出空间 */
 }
 
 .delete-btn {
